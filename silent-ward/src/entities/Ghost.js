@@ -1,6 +1,10 @@
 import * as THREE from "three";
 
 import {
+  GLTFLoader,
+} from "three/addons/loaders/GLTFLoader.js";
+
+import {
   STORY_EVENTS,
 } from "../story/StoryManager.js";
 
@@ -21,16 +25,8 @@ export class GhostSystem {
     this.story = story;
     this.state = "HIDDEN";
     this.manifestTime = 0;
-
-    this.material =
-      new THREE.MeshStandardMaterial({
-        color: 0xb8c2c1,
-        transparent: true,
-        opacity: 0,
-        roughness: 0.95,
-        emissive: 0x263332,
-        emissiveIntensity: 0.25,
-      });
+    this.isModelReady = false;
+    this.ghostMaterials = [];
 
     this.entity =
       new THREE.Group();
@@ -38,27 +34,12 @@ export class GhostSystem {
     this.entity.name =
       "corridor-ghost";
 
-    const body =
-      new THREE.Mesh(
-        new THREE.ConeGeometry(0.48, 2.5, 8),
-        this.material
-      );
-
-    body.position.y = 1.25;
-
-    const head =
-      new THREE.Mesh(
-        new THREE.SphereGeometry(0.3, 12, 10),
-        this.material
-      );
-
-    head.position.y = 2.55;
-
-    this.entity.add(body, head);
     this.entity.position.set(0, 0, -28.5);
     this.entity.visible = false;
 
     scene.add(this.entity);
+
+    this.loadCharacter();
 
     story.on(
       STORY_EVENTS.CORRIDOR_ENTERED,
@@ -68,6 +49,137 @@ export class GhostSystem {
     story.on(
       STORY_EVENTS.PATIENT_TRUTH_FOUND,
       () => this.startChase()
+    );
+
+  }
+
+
+  // ====================================
+  // GLTF CHARACTER
+  // ====================================
+
+  loadCharacter() {
+
+    const loader =
+      new GLTFLoader();
+
+    loader.load(
+      "/assets/models/ghost/ghost-character.glb",
+      (gltf) => {
+
+        const character =
+          gltf.scene;
+
+        character.name =
+          "ghost-character-model";
+
+        /*
+         * This asset imports facing +X.
+         * Rotate its local forward axis to
+         * +Z so the parent can lookAt the
+         * player correctly.
+         */
+
+        character.rotation.y =
+          -Math.PI / 2;
+
+        character.updateMatrixWorld(true);
+
+        const bounds =
+          new THREE.Box3().setFromObject(character);
+
+        const size =
+          new THREE.Vector3();
+
+        bounds.getSize(size);
+
+        if (size.y > 0) {
+
+          const scale =
+            2.8 / size.y;
+
+          character.scale.setScalar(scale);
+          character.updateMatrixWorld(true);
+
+          const scaledBounds =
+            new THREE.Box3().setFromObject(character);
+
+          character.position.y -=
+            scaledBounds.min.y;
+
+        }
+
+        character.traverse((child) => {
+
+          if (!child.isMesh) {
+            return;
+          }
+
+          child.castShadow = true;
+          child.receiveShadow = true;
+
+          const materials = Array.isArray(child.material)
+            ? child.material
+            : [child.material];
+
+          const fadedMaterials = materials.map((material) => {
+            const fadedMaterial = material.clone();
+
+            fadedMaterial.transparent = true;
+            fadedMaterial.depthWrite = false;
+            fadedMaterial.opacity = 0;
+
+            if (fadedMaterial.emissive) {
+              fadedMaterial.emissive.set(0x263332);
+              fadedMaterial.emissiveIntensity = 0.25;
+            }
+
+            this.ghostMaterials.push(fadedMaterial);
+
+            return fadedMaterial;
+          });
+
+          child.material = Array.isArray(child.material)
+            ? fadedMaterials
+            : fadedMaterials[0];
+
+        });
+
+        this.entity.add(character);
+        this.isModelReady = true;
+        this.entity.visible = this.state !== "HIDDEN";
+        this.setOpacity(
+          this.state === "CHASE" ? 0.7 : 0
+        );
+
+      },
+      undefined,
+      (error) => {
+        console.error(
+          "Failed to load ghost character:",
+          error
+        );
+      }
+    );
+
+  }
+
+
+  setOpacity(opacity) {
+
+    this.ghostMaterials.forEach((material) => {
+      material.opacity = opacity;
+    });
+
+  }
+
+
+  facePlayer() {
+
+    this.entity.lookAt(
+      this.player.position.x,
+      this.entity.position.y,
+      this.player.position.z
     );
 
   }
@@ -101,6 +213,8 @@ export class GhostSystem {
       this.entity.position.y =
         Math.sin(performance.now() * 0.006) * 0.05;
 
+      this.facePlayer();
+
       return;
     }
 
@@ -126,13 +240,19 @@ export class GhostSystem {
       ? Math.max(1 - (elapsed - 3500) / 900, 0)
       : 1;
 
-    this.material.opacity =
+    const opacity =
       Math.min(fadeIn, fadeOut) * 0.62;
+
+    this.setOpacity(
+      opacity
+    );
 
     this.entity.position.y =
       Math.sin(elapsed * 0.002) * 0.04;
 
-    if (shouldDisappear && this.material.opacity <= 0) {
+    this.facePlayer();
+
+    if (shouldDisappear && opacity <= 0) {
       this.entity.visible = false;
       this.state = "HIDDEN";
     }
@@ -145,7 +265,7 @@ export class GhostSystem {
     this.state = "CHASE";
     this.entity.position.set(0, 0, -32.2);
     this.entity.visible = true;
-    this.material.opacity = 0.7;
+    this.setOpacity(0.7);
 
   }
 

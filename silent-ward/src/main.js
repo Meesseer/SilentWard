@@ -132,6 +132,10 @@ import {
 } from "./enviroment/corridorRooms.js";
 
 import {
+  createExplorationFurniture,
+} from "./enviroment/explorationFurniture.js";
+
+import {
   createEndingUI,
 } from "./story/EndingUI.js";
 
@@ -337,6 +341,11 @@ async function init() {
       interactionManager
     );
 
+  const explorationFurnitureColliders =
+    await createExplorationFurniture(
+      scene
+    );
+
 
   // ------------------------------------
   // CORRIDOR STORY OBJECTS
@@ -466,6 +475,7 @@ async function init() {
     ...room417.colliders,
     ...explorationRoomColliders,
     ...corridorRoomColliders,
+    ...explorationFurnitureColliders,
     hospitalBed.collider,
     wardCDoor.collider,
   ];
