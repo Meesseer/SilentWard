@@ -360,13 +360,9 @@ export function createFireExit(scene, interactionManager, story, backZ) {
 
   interactionManager.addInteractable(lowerInteraction);
 
-  const upperLight = new THREE.PointLight(0x8b2020, 3.2, 8);
-  upperLight.position.set(0, 3.2, stairsStartZ - 0.8);
-  scene.add(upperLight);
-
-  const lowerLight = new THREE.PointLight(0x8b2020, 2.6, 7);
-  lowerLight.position.set(0, bottomY + 2.4, landingZ);
-  scene.add(lowerLight);
+  const stairLight = new THREE.PointLight(0x8b2020, 3.4, 10);
+  stairLight.position.set(0, 1.6, (stairsStartZ + landingZ) / 2);
+  scene.add(stairLight);
 
   function getGroundY(x, z) {
     if (Math.abs(x) > stairwellWidth / 2 + 0.2) {

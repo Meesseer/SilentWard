@@ -32,6 +32,21 @@ export class PlayerController {
     this.velocity =
       new THREE.Vector3();
 
+    this.forward =
+      new THREE.Vector3();
+
+    this.right =
+      new THREE.Vector3();
+
+    this.worldUp =
+      new THREE.Vector3(0, 1, 0);
+
+    this.nextPosition =
+      new THREE.Vector3();
+
+    this.playerBox =
+      new THREE.Box3();
+
     this.setupInput();
 
     this.isUIBlocked = false;
@@ -121,7 +136,7 @@ export class PlayerController {
     // ------------------------------------
 
     const forward =
-      new THREE.Vector3();
+      this.forward;
 
     this.camera.getWorldDirection(
       forward
@@ -139,11 +154,11 @@ export class PlayerController {
     // ------------------------------------
 
     const right =
-      new THREE.Vector3();
+      this.right;
 
     right.crossVectors(
       forward,
-      new THREE.Vector3(0, 1, 0)
+      this.worldUp
     );
 
     right.normalize();

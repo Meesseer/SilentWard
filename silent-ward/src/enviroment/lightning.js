@@ -24,13 +24,7 @@ export function createLighting(scene) {
     0
   );
 
-  ceilingLight.castShadow = true;
-
-  ceilingLight.shadow.mapSize.width =
-    1024;
-
-  ceilingLight.shadow.mapSize.height =
-    1024;
+  ceilingLight.castShadow = false;
 
   ceilingLight.userData.baseIntensity =
     18;
@@ -80,7 +74,8 @@ export function createLighting(scene) {
 
 export function updateLighting(
   elapsedTime,
-  lights
+  lights,
+  playerZ = 0
 ) {
   const flicker =
     Math.sin(elapsedTime * 35) *
@@ -89,6 +84,10 @@ export function updateLighting(
   lights.ceilingLight.intensity =
     lights.ceilingLight.userData.baseIntensity +
     flicker;
+
+  if (playerZ > -12) {
+    return;
+  }
 
   const corridorLights =
     lights.corridorLights || [];

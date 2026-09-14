@@ -32,6 +32,7 @@ export class GhostSystem {
     this.isModelReady = false;
     this.ghostMaterials = [];
     this.nextTouchTime = 0;
+    this.lastOpacity = -1;
 
     this.entity =
       new THREE.Group();
@@ -120,8 +121,8 @@ export class GhostSystem {
             return;
           }
 
-          child.castShadow = true;
-          child.receiveShadow = true;
+          child.castShadow = false;
+          child.receiveShadow = false;
 
           const materials = Array.isArray(child.material)
             ? child.material
@@ -171,6 +172,12 @@ export class GhostSystem {
 
 
   setOpacity(opacity) {
+
+    if (Math.abs(opacity - this.lastOpacity) < 0.01) {
+      return;
+    }
+
+    this.lastOpacity = opacity;
 
     this.ghostMaterials.forEach((material) => {
       material.opacity = opacity;

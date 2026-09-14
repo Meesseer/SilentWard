@@ -5,9 +5,18 @@ import {
 } from "../config/gameConfig.js";
 
 export function createRenderer() {
+  const pixelRatio =
+    Math.min(
+      window.devicePixelRatio || 1,
+      RENDER_CONFIG.maxPixelRatio
+    );
+
   const renderer =
     new THREE.WebGLRenderer({
-      antialias: true,
+      antialias: pixelRatio < 1.25,
+      powerPreference: "high-performance",
+      stencil: false,
+      depth: true,
     });
 
   renderer.setSize(
@@ -15,17 +24,9 @@ export function createRenderer() {
     window.innerHeight
   );
 
-  renderer.setPixelRatio(
-    Math.min(
-      window.devicePixelRatio,
-      RENDER_CONFIG.maxPixelRatio
-    )
-  );
+  renderer.setPixelRatio(pixelRatio);
 
-  renderer.shadowMap.enabled = true;
-
-  renderer.shadowMap.type =
-    THREE.PCFSoftShadowMap;
+  renderer.shadowMap.enabled = false;
 
   renderer.outputColorSpace =
     THREE.SRGBColorSpace;

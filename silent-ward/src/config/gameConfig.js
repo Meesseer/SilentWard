@@ -15,5 +15,5 @@ export const ROOM_CONFIG = {
 };
 
 export const RENDER_CONFIG = {
-  maxPixelRatio: 2,
+  maxPixelRatio: 1.5,
 };

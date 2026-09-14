@@ -172,7 +172,7 @@ export function createWardC(scene) {
 
 
     wardCLight.castShadow =
-        true;
+        false;
 
 
     scene.add(

@@ -6,8 +6,9 @@ export function prepareModel(model) {
       return;
     }
 
-    child.castShadow = true;
-    child.receiveShadow = true;
+    child.castShadow = false;
+    child.receiveShadow = false;
+    child.frustumCulled = true;
 
     if (child.material) {
       child.material.needsUpdate = true;

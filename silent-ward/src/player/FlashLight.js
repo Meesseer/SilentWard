@@ -11,20 +11,14 @@ export class Flashlight {
 
         this.light = new THREE.SpotLight(
             0xffffff,
-            25,
-            40,
-            Math.PI / 5,
-            0.3,
+            18,
+            22,
+            Math.PI / 5.5,
+            0.35,
             2
         );
 
-        this.light.castShadow = true;
-
-        this.light.shadow.mapSize.width = 1024;
-        this.light.shadow.mapSize.height = 1024;
-
-        this.light.shadow.camera.near = 0.1;
-        this.light.shadow.camera.far = 30;
+        this.light.castShadow = false;
 
 
         // ------------------------------------
@@ -74,10 +68,6 @@ export class Flashlight {
         this.isOn = true;
 
         this.light.visible = true;
-
-        console.log(
-            "🔦 Flashlight created"
-        );
     }
 
 
@@ -88,24 +78,5 @@ export class Flashlight {
 
         this.light.visible =
             this.isOn;
-
-        console.log(
-            "🔦 Flashlight:",
-            this.isOn ? "ON" : "OFF"
-        );
-    }
-
-
-    update() {
-
-        if (!this.isOn) {
-            return;
-        }
-
-        this.target.position.set(
-            0,
-            0,
-            -10
-        );
     }
 }

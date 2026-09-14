@@ -371,10 +371,8 @@ export function createCorridor(
   // ====================================
 
   const lightPositions = [
-    -6,
-    -2,
-    2,
-    6,
+    -4,
+    4,
   ];
 
   const lights = [];
@@ -418,8 +416,8 @@ export function createCorridor(
       const light =
         new THREE.PointLight(
           0xf2e4b8,
-          4.8,
-          10
+          6.2,
+          12
         );
 
       light.position.set(
@@ -428,7 +426,7 @@ export function createCorridor(
         originZ + zOffset
       );
 
-      light.userData.baseIntensity = 4.8;
+      light.userData.baseIntensity = 6.2;
       light.userData.phase = index * 1.83;
 
       scene.add(light);
