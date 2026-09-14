@@ -32,6 +32,15 @@ export class PlayerController {
       new THREE.Vector3();
 
     this.setupInput();
+
+    this.isUIBlocked = false;
+  }
+
+  setUIBlocked(blocked) {
+
+    this.isUIBlocked =
+      blocked;
+
   }
 
   setupInput() {
@@ -89,6 +98,14 @@ export class PlayerController {
   }
 
   update(deltaTime) {
+
+    if (this.isUIBlocked) {
+      return;
+    }
+
+    if (!this.controls.isLocked) {
+      return;
+    }
 
     if (!this.controls.isLocked) {
       return;
@@ -256,6 +273,20 @@ export class PlayerController {
 
     for (const collider of this.colliders) {
 
+      // ------------------------------------
+      // IGNORE OPEN DOORS
+      // ------------------------------------
+
+      if (
+        collider.userData &&
+        collider.userData.isOpen
+      ) {
+
+        continue;
+
+      }
+
+
       const colliderBox =
         new THREE.Box3().setFromObject(
           collider
@@ -268,28 +299,8 @@ export class PlayerController {
         )
       ) {
 
-        console.log(
-          "🚨 COLLISION WITH:",
-          collider.name || "Unnamed collider"
-        );
-
-        console.log(
-          "Collider position:",
-          collider.position
-        );
-
-        console.log(
-          "Collider box:",
-          colliderBox.min,
-          colliderBox.max
-        );
-
-        console.log(
-          "Player position:",
-          position
-        );
-
         return true;
+
       }
     }
 

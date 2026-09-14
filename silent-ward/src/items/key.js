@@ -1,5 +1,12 @@
 import * as THREE from "three";
-import { Interactable } from "../interaction/Interactable.js";
+
+import {
+    GLTFLoader,
+} from "three/examples/jsm/loaders/GLTFLoader.js";
+
+import {
+    Interactable,
+} from "../interaction/Interactable.js";
 
 import {
     updateInventoryUI,
@@ -12,98 +19,201 @@ export function createHospitalKey(
     interactionManager
 ) {
 
-    const geometry =
-        new THREE.BoxGeometry(
-            0.15,
-            0.15,
-            0.8
-        );
+    // ====================================
+    // GLTF LOADER
+    // ====================================
 
-    const material =
-        new THREE.MeshStandardMaterial({
-            color: 0xb0b0b0,
-            metalness: 0.8,
-            roughness: 0.3,
-        });
-
-    const key =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
+    const loader =
+        new GLTFLoader();
 
 
-    key.position.set(
-        1,
-        1.2,
-        -2
-    );
-
-
-    key.rotation.z =
-        Math.PI / 2;
-
-
-    scene.add(key);
-
+    // ====================================
+    // KEY ITEM
+    // ====================================
 
     const keyItem = {
-        id: "hospital_key",
 
-        name: "Hospital Key",
+        id:
+            "hospital_key",
+
+        name:
+            "Hospital Key",
 
         description:
             "An old key. The tag reads: Ward B.",
+
     };
 
 
-    const keyInteraction =
-        new Interactable({
+    // ====================================
+    // LOAD KEY MODEL
+    // ====================================
 
-            object: key,
+    loader.load(
 
-            name: "Hospital Key",
+        "/assets/models/furniture/Key.glb",
 
-            interactionText:
-                "Press E to pick up",
+        (gltf) => {
 
-            onInteract: () => {
-
-                inventory.addItem(
-                    keyItem
-                );
+            const key =
+                gltf.scene;
 
 
-                // Update inventory UI
-                updateInventoryUI(
-                    inventory
-                );
+            key.name =
+                "hospital-key";
 
 
-                // Remove key from interaction system
-                interactionManager.removeInteractable(
-                    keyInteraction
-                );
+            // ====================================
+            // POSITION
+            // ====================================
+
+            key.position.set(
+                0.5,
+                1.5,
+                -1
+            );
 
 
-                // Remove key from world
-                scene.remove(
-                    key
-                );
+            // ====================================
+            // ROTATION
+            // ====================================
+
+            key.rotation.z =
+                Math.PI;
 
 
-                // Clear interaction prompt
-                interactionManager.clearInteraction();
+            // ====================================
+            // SCALE
+            // ====================================
 
-            },
+            key.scale.set(
+                0.1,
+                0.2,
+                0.2
+            );
 
-        });
+
+            // ====================================
+            // SHADOWS
+            // ====================================
+
+            key.traverse(
+                (child) => {
+
+                    if (
+                        child.isMesh
+                    ) {
+
+                        child.castShadow =
+                            true;
+
+                        child.receiveShadow =
+                            true;
+
+                    }
+
+                }
+            );
 
 
-    interactionManager.addInteractable(
-        keyInteraction
+            // ====================================
+            // ADD TO SCENE
+            // ====================================
+
+            scene.add(
+                key
+            );
+
+
+            // ====================================
+            // INTERACTION
+            // ====================================
+
+            const keyInteraction =
+                new Interactable({
+
+                    object:
+                        key,
+
+                    name:
+                        "Hospital Key",
+
+                    interactionText:
+                        "Press E to pick up",
+
+                    onInteract: () => {
+
+                        // ----------------------------
+                        // ADD TO INVENTORY
+                        // ----------------------------
+
+                        inventory.addItem(
+                            keyItem
+                        );
+
+
+                        // ----------------------------
+                        // UPDATE INVENTORY UI
+                        // ----------------------------
+
+                        updateInventoryUI(
+                            inventory
+                        );
+
+
+                        // ----------------------------
+                        // REMOVE INTERACTION
+                        // ----------------------------
+
+                        interactionManager.removeInteractable(
+                            keyInteraction
+                        );
+
+
+                        // ----------------------------
+                        // REMOVE FROM WORLD
+                        // ----------------------------
+
+                        scene.remove(
+                            key
+                        );
+
+
+                        // ----------------------------
+                        // CLEAR PROMPT
+                        // ----------------------------
+
+                        interactionManager.clearInteraction();
+
+                    },
+
+                });
+
+
+            // ====================================
+            // REGISTER INTERACTION
+            // ====================================
+
+            interactionManager.addInteractable(
+                keyInteraction
+            );
+
+        },
+
+
+        // ====================================
+        // ERROR
+        // ====================================
+
+        (error) => {
+
+            console.error(
+                "Failed to load hospital key:",
+                error
+            );
+
+        }
+
     );
 
-
-    return key;
 }

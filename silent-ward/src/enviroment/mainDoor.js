@@ -1,37 +1,32 @@
-import * as THREE from "three";
-
 import {
     Interactable,
 } from "../interaction/Interactable.js";
-
-import {
-    createKeypad,
-} from "../ui/keypad.js";
 
 import {
     showMessage,
 } from "../ui/interactablePrompt.js";
 
 
-export function createWardCDoor(
+export function createMainDoor(
     scene,
+    inventory,
     interactionManager
 ) {
 
     // ====================================
-    // FIND EXISTING DOOR
+    // FIND EXISTING ROOM DOOR
     // ====================================
 
     const door =
         scene.getObjectByName(
-            "ward-c-entrance-door"
+            "main-room-door"
         );
 
 
     if (!door) {
 
         console.error(
-            "Ward C entrance door not found."
+            "Main room door not found."
         );
 
         return null;
@@ -51,63 +46,6 @@ export function createWardCDoor(
 
 
     // ====================================
-    // KEYPAD
-    // ====================================
-
-    const keypad =
-        createKeypad({
-
-            correctCode:
-                "1734",
-
-            onSuccess: () => {
-
-                console.log(
-                    "🔓 Ward C access code accepted."
-                );
-
-
-                // --------------------------------
-                // CLOSE KEYPAD
-                // --------------------------------
-
-                keypad.close();
-
-
-                // --------------------------------
-                // OPEN DOOR
-                // --------------------------------
-
-                showMessage(
-                    "The lock clicks..."
-                );
-
-
-                isOpening =
-                    true;
-
-
-                openDoor();
-
-            },
-
-
-            onClose: () => {
-
-                // --------------------------------
-                // RESTORE PLAYER
-                // --------------------------------
-
-                interactionManager.setBlocked(
-                    false
-                );
-
-            },
-
-        });
-
-
-    // ====================================
     // INTERACTION
     // ====================================
 
@@ -118,10 +56,10 @@ export function createWardCDoor(
                 door,
 
             name:
-                "Ward C Entrance",
+                "Main Room Door",
 
             interactionText:
-                "Press E to enter access code",
+                "Press E to use access card",
 
             onInteract: () => {
 
@@ -140,19 +78,38 @@ export function createWardCDoor(
 
 
                 // --------------------------------
-                // BLOCK GAME INTERACTION
+                // CHECK ACCESS CARD
                 // --------------------------------
 
-                interactionManager.setBlocked(
-                    true
+                if (
+                    !inventory.hasItem(
+                        "ward_c_access_card"
+                    )
+                ) {
+
+                    showMessage(
+                        "The door is locked. It requires an access card."
+                    );
+
+                    return;
+
+                }
+
+
+                // --------------------------------
+                // ACCESS GRANTED
+                // --------------------------------
+
+                showMessage(
+                    "The access card works. The door unlocks."
                 );
 
 
-                // --------------------------------
-                // OPEN KEYPAD
-                // --------------------------------
+                isOpening =
+                    true;
 
-                keypad.open();
+
+                openDoor();
 
             },
 
@@ -174,15 +131,6 @@ export function createWardCDoor(
 
     function openDoor() {
 
-        if (
-            isOpening === false
-        ) {
-
-            return;
-
-        }
-
-
         const startRotation =
             door.rotation.y;
 
@@ -193,7 +141,7 @@ export function createWardCDoor(
 
 
         const duration =
-            800;
+            700;
 
 
         const startTime =
@@ -211,21 +159,19 @@ export function createWardCDoor(
 
             const progress =
                 Math.min(
-                    elapsed /
-                    duration,
+                    elapsed / duration,
                     1
                 );
 
 
-            // ====================================
+            // --------------------------------
             // SMOOTH EASING
-            // ====================================
+            // --------------------------------
 
             const easedProgress =
                 1 -
                 Math.pow(
-                    1 -
-                    progress,
+                    1 - progress,
                     3
                 );
 
@@ -239,9 +185,9 @@ export function createWardCDoor(
                 easedProgress;
 
 
-            // ====================================
-            // CONTINUE
-            // ====================================
+            // --------------------------------
+            // CONTINUE ANIMATION
+            // --------------------------------
 
             if (
                 progress < 1
@@ -256,9 +202,9 @@ export function createWardCDoor(
             }
 
 
-            // ====================================
+            // --------------------------------
             // COMPLETE
-            // ====================================
+            // --------------------------------
 
             door.rotation.y =
                 targetRotation;
@@ -267,22 +213,21 @@ export function createWardCDoor(
             isOpen =
                 true;
 
-
             isOpening =
                 false;
 
 
-            // ====================================
-            // COLLISION STATE
-            // ====================================
+            // --------------------------------
+            // MARK COLLIDER AS OPEN
+            // --------------------------------
 
             door.userData.isOpen =
                 true;
 
 
-            // ====================================
+            // --------------------------------
             // REMOVE INTERACTION
-            // ====================================
+            // --------------------------------
 
             interactionManager.removeInteractable(
                 doorInteraction
@@ -292,21 +237,8 @@ export function createWardCDoor(
             interactionManager.clearInteraction();
 
 
-            // ====================================
-            // RESTORE PLAYER
-            // ====================================
-
-            interactionManager.setBlocked(
-                false
-            );
-
-
-            // ====================================
-            // MESSAGE
-            // ====================================
-
             showMessage(
-                "Ward C is unlocked."
+                "The door is open."
             );
 
         }
@@ -327,11 +259,10 @@ export function createWardCDoor(
 
         door,
 
-        collider:
-            door,
-
         interaction:
             doorInteraction,
+
+        isOpen: () => isOpen,
 
     };
 

@@ -190,3 +190,686 @@ canvas {
 
   font-size: 13px;
 }
+
+/* ====================================
+   DOCUMENT VIEWER
+==================================== */
+
+#document-viewer {
+
+  position: fixed;
+
+  inset: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background:
+    rgba(0, 0, 0, 0.82);
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition:
+    opacity 0.2s ease;
+
+  z-index: 9999;
+
+}
+
+
+/* Visible state */
+
+#document-viewer.visible {
+
+  opacity: 1;
+
+  visibility: visible;
+
+}
+
+
+/* ====================================
+   DOCUMENT CONTAINER
+==================================== */
+
+.document-container {
+
+  position: relative;
+
+  width: min(
+    700px,
+    90vw
+  );
+
+  max-height: 85vh;
+
+  display: flex;
+
+  justify-content: center;
+
+}
+
+
+/* ====================================
+   PAPER
+==================================== */
+
+.document-paper {
+
+  width: 100%;
+
+  max-height: 80vh;
+
+  overflow-y: auto;
+
+  padding: 50px 60px;
+
+  background:
+    #d8d0bd;
+
+  color:
+    #24221d;
+
+  box-shadow:
+    0 20px 60px
+    rgba(0, 0, 0, 0.7);
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  line-height: 1.7;
+
+}
+
+
+/* ====================================
+   HEADER
+==================================== */
+
+.document-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  font-size: 12px;
+
+  letter-spacing: 2px;
+
+  font-weight: bold;
+
+  opacity: 0.7;
+
+}
+
+
+.document-paper h1 {
+
+  margin-top: 30px;
+
+  margin-bottom: 25px;
+
+  font-size: 32px;
+
+}
+
+
+/* ====================================
+   META
+==================================== */
+
+.document-meta {
+
+  border-left:
+    3px solid
+    #555;
+
+  padding-left: 15px;
+
+  margin-bottom: 30px;
+
+}
+
+
+.document-meta p {
+
+  margin: 4px 0;
+
+}
+
+
+/* ====================================
+   WARNING
+==================================== */
+
+.document-warning {
+
+  margin-top: 35px;
+
+  padding: 20px;
+
+  border:
+    1px solid
+    rgba(60, 50, 40, 0.4);
+
+  background:
+    rgba(80, 60, 40, 0.08);
+
+}
+
+
+.document-warning strong {
+
+  letter-spacing: 2px;
+
+}
+
+
+.document-warning p {
+
+  margin-bottom: 8px;
+
+}
+
+
+/* ====================================
+   FOOTER
+==================================== */
+
+.document-footer {
+
+  margin-top: 40px;
+
+  padding-top: 15px;
+
+  border-top:
+    1px solid
+    rgba(50, 50, 50, 0.3);
+
+  font-size: 11px;
+
+  letter-spacing: 2px;
+
+  opacity: 0.6;
+
+}
+
+
+/* ====================================
+   CLOSE BUTTON
+==================================== */
+
+.document-close {
+
+  position: absolute;
+
+  top: -15px;
+
+  right: -15px;
+
+  width: 42px;
+
+  height: 42px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background:
+    #181818;
+
+  color:
+    white;
+
+  font-size: 28px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  z-index: 2;
+
+}
+
+
+.document-close:hover {
+
+  background:
+    #333;
+
+}
+
+
+/* ====================================
+   KEYPAD
+==================================== */
+
+#keypad-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background:
+    rgba(0, 0, 0, 0.8);
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition:
+    opacity 0.2s ease;
+
+  z-index: 10000;
+}
+
+
+#keypad-overlay.visible {
+
+  opacity: 1;
+
+  visibility: visible;
+}
+
+
+/* ====================================
+   KEYPAD BODY
+==================================== */
+
+.keypad {
+
+  position: relative;
+
+  width: 280px;
+
+  padding: 30px;
+
+  background:
+    #181818;
+
+  border:
+    1px solid
+    #444;
+
+  box-shadow:
+    0 20px 60px
+    rgba(0, 0, 0, 0.8);
+
+  text-align: center;
+
+  font-family:
+    Arial,
+    sans-serif;
+}
+
+
+/* ====================================
+   TITLE
+==================================== */
+
+.keypad-title {
+
+  color:
+    #aaa;
+
+  font-size:
+    13px;
+
+  letter-spacing:
+    3px;
+
+  margin-bottom:
+    20px;
+}
+
+
+/* ====================================
+   DISPLAY
+==================================== */
+
+.keypad-display {
+
+  display: flex;
+
+  justify-content: center;
+
+  gap: 15px;
+
+  margin-bottom:
+    25px;
+
+  font-size:
+    32px;
+
+  color:
+    #ddd;
+
+  letter-spacing:
+    8px;
+}
+
+
+/* ====================================
+   BUTTONS
+==================================== */
+
+.keypad-buttons {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 8px;
+}
+
+
+.keypad-buttons button {
+
+  height:
+    50px;
+
+  border:
+    1px solid
+    #444;
+
+  background:
+    #252525;
+
+  color:
+    #ddd;
+
+  font-size:
+    18px;
+
+  cursor:
+    pointer;
+}
+
+
+.keypad-buttons button:hover {
+
+  background:
+    #333;
+}
+
+
+.keypad-buttons button:active {
+
+  background:
+    #444;
+}
+
+
+/* ====================================
+   ENTER
+==================================== */
+
+.keypad-enter {
+
+  width:
+    100%;
+
+  height:
+    45px;
+
+  margin-top:
+    12px;
+
+  border:
+    none;
+
+  background:
+    #444;
+
+  color:
+    white;
+
+  font-weight:
+    bold;
+
+  cursor:
+    pointer;
+
+}
+
+
+.keypad-enter:hover {
+
+  background:
+    #555;
+
+}
+
+
+/* ====================================
+   MESSAGE
+==================================== */
+
+.keypad-message {
+
+  height:
+    20px;
+
+  margin-top:
+    15px;
+
+  color:
+    #aaa;
+
+  font-size:
+    12px;
+
+}
+
+
+/* ====================================
+   CLOSE
+==================================== */
+
+.keypad-close {
+
+  position:
+    absolute;
+
+  top:
+    8px;
+
+  right:
+    10px;
+
+  border:
+    none;
+
+  background:
+    transparent;
+
+  color:
+    #aaa;
+
+  font-size:
+    24px;
+
+  cursor:
+    pointer;
+}
+
+/* ====================================
+   CCTV / ENDING
+==================================== */
+
+#cctv-overlay,
+#floor-plan-overlay,
+#ending-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.88);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+  z-index: 10001;
+}
+
+#cctv-overlay.visible,
+#floor-plan-overlay.visible,
+#ending-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.cctv-frame {
+  position: relative;
+  width: min(720px, 90vw);
+  padding: 22px;
+  border: 1px solid #547b70;
+  background: #08110f;
+  color: #a7c9bb;
+  font-family: monospace;
+  line-height: 1.5;
+}
+
+.cctv-label {
+  font-size: 12px;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+
+.cctv-feed {
+  position: relative;
+  height: 290px;
+  overflow: hidden;
+  border: 1px solid #35584f;
+  background: repeating-linear-gradient(0deg, #122722 0, #122722 2px, #0a1613 3px, #0a1613 5px);
+}
+
+.cctv-figure {
+  position: absolute;
+  left: 52%;
+  bottom: 30px;
+  width: 26px;
+  height: 130px;
+  border-radius: 45% 45% 20% 20%;
+  background: rgba(197, 225, 213, 0.75);
+  box-shadow: 0 -42px 0 -12px rgba(197, 225, 213, 0.75);
+  animation: cctv-flicker 1.7s steps(2) infinite;
+}
+
+.cctv-close {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  z-index: 2;
+  border: 0;
+  background: transparent;
+  color: #a7c9bb;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.ending-content {
+  width: min(620px, 90vw);
+  padding: 42px;
+  text-align: center;
+  color: #ddd7ca;
+  background: rgba(13, 13, 14, 0.92);
+  border: 1px solid rgba(210, 198, 170, 0.3);
+  font-family: Georgia, serif;
+  line-height: 1.7;
+}
+
+.ending-kicker {
+  letter-spacing: 5px;
+  font: 12px Arial, sans-serif;
+}
+
+.ending-content h1 {
+  margin: 20px 0;
+  letter-spacing: 7px;
+}
+
+.ending-content button {
+  margin-top: 24px;
+  padding: 11px 18px;
+  border: 1px solid #8f8776;
+  background: #272521;
+  color: #eee;
+  cursor: pointer;
+}
+
+@keyframes cctv-flicker {
+  0%, 100% { opacity: 0.75; transform: translateX(0); }
+  48% { opacity: 0.2; transform: translateX(2px); }
+  52% { opacity: 0.9; transform: translateX(-2px); }
+}
+
+.floor-plan-paper {
+  position: relative;
+  width: min(700px, 90vw);
+  padding: 42px;
+  background: #c7bfaa;
+  color: #292720;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  font-family: Georgia, serif;
+  line-height: 1.65;
+}
+
+.plan-title {
+  margin-bottom: 30px;
+  font: bold 13px Arial, sans-serif;
+  letter-spacing: 2px;
+}
+
+.plan-map {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 32px;
+  padding: 25px 10px;
+  border: 2px solid #6b6658;
+  font: bold 12px Arial, sans-serif;
+  text-align: center;
+}
+
+.plan-map i {
+  width: 24px;
+  height: 2px;
+  background: #5c574a;
+}
+
+.plan-crossed {
+  color: #702020;
+  text-decoration: line-through 3px;
+}
+
+.plan-note {
+  margin-top: 28px;
+  color: #64272a;
+  font-style: italic;
+}
+
+.floor-plan-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  border: 0;
+  background: transparent;
+  color: #3d392f;
+  font-size: 28px;
+  cursor: pointer;
+}

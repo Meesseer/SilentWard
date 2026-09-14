@@ -8,6 +8,20 @@ import {
 
 
 // ====================================
+// WARD C CONFIG
+// ====================================
+
+export const WARD_C_CONFIG = {
+    width: 10,
+    depth: 8,
+    height: 4,
+    centerZ: -9,
+    exitWidth: 2,
+    exitHeight: 3.5,
+};
+
+
+// ====================================
 // CREATE BOX
 // ====================================
 
@@ -43,11 +57,15 @@ function createBox(
     );
 
 
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
+    mesh.castShadow =
+        true;
+
+    mesh.receiveShadow =
+        true;
 
 
     return mesh;
+
 }
 
 
@@ -69,33 +87,72 @@ export function createWardC(scene) {
     }
 
 
-    const wardCLight =
-        new THREE.PointLight(
-            0xffffff,
-            2,
-            20
-        );
-
-    wardCLight.position.set(
-        0,
-        3.5,
-        -12
-    );
-
-    wardCLight.castShadow = true;
-
-    scene.add(
-        wardCLight
-    );
-
-
     // ====================================
     // ROOM CONFIG
     // ====================================
 
-    const ROOM_WIDTH = 10;
-    const ROOM_DEPTH = 8;
-    const ROOM_HEIGHT = 4;
+    const ROOM_WIDTH =
+        WARD_C_CONFIG.width;
+
+    const ROOM_DEPTH =
+        WARD_C_CONFIG.depth;
+
+    const ROOM_HEIGHT =
+        WARD_C_CONFIG.height;
+
+
+    // ====================================
+    // ROOM POSITION
+    // ====================================
+
+    // Original room back wall is at Z = -5.
+    //
+    // Ward C front edge must also be at Z = -5.
+    //
+    // Depth = 8
+    // Half depth = 4
+    //
+    // Center:
+    //
+    // -5 - 4 = -9
+
+    const ROOM_Z =
+        WARD_C_CONFIG.centerZ;
+
+
+    const EXIT_WIDTH =
+        WARD_C_CONFIG.exitWidth;
+
+    const EXIT_HEIGHT =
+        WARD_C_CONFIG.exitHeight;
+
+
+    // ====================================
+    // LIGHT
+    // ====================================
+
+    const wardCLight =
+        new THREE.PointLight(
+            0xffffff,
+            8,
+            20
+        );
+
+
+    wardCLight.position.set(
+        0,
+        3.5,
+        ROOM_Z
+    );
+
+
+    wardCLight.castShadow =
+        true;
+
+
+    scene.add(
+        wardCLight
+    );
 
 
     // ====================================
@@ -110,26 +167,87 @@ export function createWardC(scene) {
             floorMaterial,
             0,
             -0.1,
-            -12
+            ROOM_Z
         )
     );
 
 
     // ====================================
-    // BACK WALL
+    // BACK WALL / CORRIDOR EXIT
     // ====================================
+
+    /*
+     * Ward C exits through its back wall.
+     * Split the wall around the opening so
+     * the access-card door is a real passage,
+     * rather than a door placed over a wall.
+     */
+
+    const EXIT_Z =
+        ROOM_Z -
+        ROOM_DEPTH / 2;
+
+
+    const sideWallWidth =
+        (
+            ROOM_WIDTH -
+            EXIT_WIDTH
+        ) / 2;
+
 
     addCollider(
         createBox(
-            ROOM_WIDTH,
+            sideWallWidth,
             ROOM_HEIGHT,
             0.2,
             wallMaterial,
-            0,
+            -(
+                EXIT_WIDTH / 2 +
+                sideWallWidth / 2
+            ),
             ROOM_HEIGHT / 2,
-            -16
+            EXIT_Z
         )
     );
+
+
+    addCollider(
+        createBox(
+            sideWallWidth,
+            ROOM_HEIGHT,
+            0.2,
+            wallMaterial,
+            EXIT_WIDTH / 2 +
+            sideWallWidth / 2,
+            ROOM_HEIGHT / 2,
+            EXIT_Z
+        )
+    );
+
+
+    const wallAboveExit =
+        ROOM_HEIGHT -
+        EXIT_HEIGHT;
+
+
+    if (
+        wallAboveExit > 0
+    ) {
+
+        addCollider(
+            createBox(
+                EXIT_WIDTH,
+                wallAboveExit,
+                0.2,
+                wallMaterial,
+                0,
+                EXIT_HEIGHT +
+                wallAboveExit / 2,
+                EXIT_Z
+            )
+        );
+
+    }
 
 
     // ====================================
@@ -142,9 +260,9 @@ export function createWardC(scene) {
             ROOM_HEIGHT,
             ROOM_DEPTH,
             wallMaterial,
-            -5,
+            -ROOM_WIDTH / 2,
             ROOM_HEIGHT / 2,
-            -12
+            ROOM_Z
         )
     );
 
@@ -159,9 +277,9 @@ export function createWardC(scene) {
             ROOM_HEIGHT,
             ROOM_DEPTH,
             wallMaterial,
-            5,
+            ROOM_WIDTH / 2,
             ROOM_HEIGHT / 2,
-            -12
+            ROOM_Z
         )
     );
 
@@ -178,10 +296,14 @@ export function createWardC(scene) {
             darkMaterial,
             0,
             ROOM_HEIGHT,
-            -12
+            ROOM_Z
         )
     );
 
+
+    // ====================================
+    // RETURN COLLIDERS
+    // ====================================
 
     return colliders;
 

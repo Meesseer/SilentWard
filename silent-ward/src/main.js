@@ -13,6 +13,12 @@ import { createRenderer } from "./core/renderer.js";
 // ENVIRONMENT
 // ------------------------------------
 
+import {
+  ROOM_CONFIG,
+} from "./config/gameConfig.js";
+import {
+  createLockedDrawer,
+} from "./enviroment/lockedDrawer.js";
 import { createRoom } from "./enviroment/room.js";
 import { createFurniture } from "./enviroment/furniture.js";
 import { createProps } from "./enviroment/props.js";
@@ -35,7 +41,17 @@ import {
 
 import {
   createWardC,
+  WARD_C_CONFIG,
 } from "./enviroment/wardC.js";
+
+import {
+  createCorridor,
+  CORRIDOR_CONFIG,
+} from "./enviroment/corridor.js";
+
+import {
+  createCorridorDoor,
+} from "./enviroment/corridorDoor.js";
 
 import {
   createWardCFurniture,
@@ -82,6 +98,42 @@ import {
 import {
   createHospitalKey,
 } from "./items/key.js";
+
+import {
+  createPatientFile,
+} from "./items/patientFile.jsx";
+
+import {
+  createWardCAccessCard,
+} from "./items/wardCAccessCard.js";
+
+import {
+  createOldRoom417,
+} from "./enviroment/room417.js";
+
+import {
+  StoryManager,
+} from "./story/StoryManager.js";
+
+import {
+  GhostSystem,
+} from "./entities/Ghost.js";
+
+import {
+  createFloorPlan,
+} from "./story/FloorPlan.js";
+
+import {
+  createExplorationRooms,
+} from "./enviroment/explorationRooms.js";
+
+import {
+  createCorridorRooms,
+} from "./enviroment/corridorRooms.js";
+
+import {
+  createEndingUI,
+} from "./story/EndingUI.js";
 
 
 
@@ -135,8 +187,35 @@ async function init() {
   const wardCColliders =
     createWardC(scene);
 
+  // ------------------------------------
+  // WARD C CORRIDOR
+  // ------------------------------------
+
+  /*
+   * Ward C occupies Z = -5 through -13.
+   * Its exit is the back edge at Z = -13.
+   * The corridor starts at that edge and
+   * extends away from Ward C along -Z.
+   */
+
+  const wardCExitZ =
+    WARD_C_CONFIG.centerZ -
+    WARD_C_CONFIG.depth / 2;
+
+  const corridorLength =
+    CORRIDOR_CONFIG.length;
+
+  const corridor =
+    createCorridor(
+      scene,
+      0,
+      0,
+      wardCExitZ -
+      corridorLength / 2
+    );
+
   const wardCFurnitureColliders =
-    createWardCFurniture(scene);
+    await createWardCFurniture(scene);
 
   // ------------------------------------
   // PLAYER
@@ -148,7 +227,7 @@ async function init() {
   player.position.set(
     0,
     2,
-    -10
+    0
   );
 
   player.updateCameraPosition();
@@ -219,6 +298,99 @@ async function init() {
     interactionPrompt
   );
 
+
+  // ------------------------------------
+  // STORY SYSTEMS
+  // ------------------------------------
+
+  const story =
+    new StoryManager({
+      inventory,
+      player,
+    });
+
+  const ghost =
+    new GhostSystem({
+      scene,
+      player,
+      story,
+    });
+
+  createEndingUI(
+    story
+  );
+
+
+  // ------------------------------------
+  // EXPLORATION ROOMS
+  // ------------------------------------
+
+  const explorationRoomColliders =
+    createExplorationRooms(
+      scene,
+      interactionManager
+    );
+
+  const corridorRoomColliders =
+    createCorridorRooms(
+      scene,
+      interactionManager
+    );
+
+
+  // ------------------------------------
+  // CORRIDOR STORY OBJECTS
+  // ------------------------------------
+
+  createFloorPlan(
+    scene,
+    interactionManager,
+    story
+  );
+
+  const room417 =
+    createOldRoom417(
+      scene,
+      interactionManager,
+      story
+    );
+
+
+  // ------------------------------------
+  // WARD C ACCESS CARD
+  // ------------------------------------
+
+  const wardCAccessCard =
+    createWardCAccessCard(
+      scene,
+      inventory,
+      interactionManager
+    );
+
+
+  // ------------------------------------
+  // WARD C LOCKED DRAWER
+  // ------------------------------------
+
+  const lockedDrawer =
+    createLockedDrawer(
+      scene,
+      interactionManager,
+      wardCAccessCard
+    );
+
+
+  // ------------------------------------
+  // WARD C PATIENT FILE
+  // ------------------------------------
+
+  createPatientFile(
+    scene,
+    interactionManager
+  );
+
+
+
   // ------------------------------------
   // WARD C DOOR
   // ------------------------------------
@@ -227,6 +399,13 @@ async function init() {
     createWardCDoor(
       scene,
       interactionManager
+    );
+
+  const corridorDoor =
+    createCorridorDoor(
+      scene,
+      interactionManager,
+      inventory
     );
 
 
@@ -283,6 +462,10 @@ async function init() {
     ...furnitureColliders,
     ...wardCColliders,
     ...wardCFurnitureColliders,
+    ...corridor.colliders,
+    ...room417.colliders,
+    ...explorationRoomColliders,
+    ...corridorRoomColliders,
     hospitalBed.collider,
     wardCDoor.collider,
   ];
@@ -364,6 +547,13 @@ async function init() {
     playerController.update(
       deltaTime
     );
+
+
+    // Story / ghost
+
+    story.update();
+
+    ghost.update();
 
 
     // Interaction
