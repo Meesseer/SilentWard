@@ -4,6 +4,10 @@ import {
   Interactable,
 } from "../interaction/Interactable.js";
 
+import {
+  createWallMaterial,
+} from "./material.js";
+
 
 // ====================================
 // SPAWN ROOM EXPLORATION ROOMS
@@ -43,10 +47,7 @@ function createExplorationRoom(
   const colliders = [];
   const centerZ = FRONT_Z + ROOM_DEPTH / 2;
   const backZ = centerZ + ROOM_DEPTH / 2;
-  const wallMaterial = new THREE.MeshStandardMaterial({
-    color: 0x37393a,
-    roughness: 0.95,
-  });
+  const wallMaterial = createWallMaterial(ROOM_DEPTH, ROOM_HEIGHT);
   const floorMaterial = new THREE.MeshStandardMaterial({
     color: 0x242627,
     roughness: 1,

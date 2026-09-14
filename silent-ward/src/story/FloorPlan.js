@@ -8,31 +8,96 @@ import {
   STORY_EVENTS,
 } from "./StoryManager.js";
 
+import { loadModel } from "../core/assetLoader.js";
+
+import {
+  prepareModel,
+  fitModelToSize,
+  alignModelToPoint,
+} from "../core/modelUtils.js";
+
+
+function createTableCollider(scene, x, height, z) {
+  const collider = new THREE.Mesh(
+    new THREE.BoxGeometry(1.35, height, 0.85),
+    new THREE.MeshBasicMaterial({
+      visible: false,
+    })
+  );
+
+  collider.position.set(x, height / 2, z);
+  collider.name = "floor-plan-table-collider";
+  scene.add(collider);
+
+  return collider;
+}
+
 
 // ====================================
 // CORRIDOR FLOOR PLAN
 // ====================================
 
-export function createFloorPlan(
+export async function createFloorPlan(
   scene,
   interactionManager,
   story
 ) {
 
-  const cart = new THREE.Mesh(
-    new THREE.BoxGeometry(1.2, 0.9, 0.75),
-    new THREE.MeshStandardMaterial({
-      color: 0x303334,
-      roughness: 0.8,
-      metalness: 0.25,
-    })
+  const tableX = 1.25;
+  const tableZ = -25.5;
+  const tableHeight = 0.95;
+  let tableTopY = tableHeight;
+
+  try {
+    const table = await loadModel(
+      "/assets/models/furniture/medicalTable.glb"
+    );
+
+    prepareModel(table);
+
+    const fittedBounds = fitModelToSize(
+      table,
+      1.4,
+      tableHeight
+    );
+
+    const placedBounds = alignModelToPoint(
+      table,
+      fittedBounds,
+      tableX,
+      0,
+      tableZ
+    );
+
+    table.name = "corridor-floor-plan-table";
+    scene.add(table);
+    tableTopY = placedBounds.max.y;
+  }
+  catch (error) {
+    console.error("Failed to load floor plan table:", error);
+
+    const cart = new THREE.Mesh(
+      new THREE.BoxGeometry(1.2, 0.9, 0.75),
+      new THREE.MeshStandardMaterial({
+        color: 0x303334,
+        roughness: 0.8,
+        metalness: 0.25,
+      })
+    );
+
+    cart.position.set(tableX, 0.45, tableZ);
+    cart.castShadow = true;
+    cart.receiveShadow = true;
+    scene.add(cart);
+    tableTopY = 0.9;
+  }
+
+  const tableCollider = createTableCollider(
+    scene,
+    tableX,
+    tableTopY,
+    tableZ
   );
-
-  cart.position.set(1.25, 0.45, -25.5);
-  cart.castShadow = true;
-  cart.receiveShadow = true;
-
-  scene.add(cart);
 
   const plan = new THREE.Mesh(
     new THREE.BoxGeometry(0.9, 0.03, 0.65),
@@ -43,7 +108,7 @@ export function createFloorPlan(
   );
 
   plan.name = "east-service-floor-plan";
-  plan.position.set(1.25, 1.02, -25.5);
+  plan.position.set(tableX, tableTopY + 0.02, tableZ);
   plan.rotation.x = -Math.PI / 2;
   plan.castShadow = true;
   plan.receiveShadow = true;
@@ -105,6 +170,7 @@ export function createFloorPlan(
   return {
     plan,
     interaction,
+    tableCollider,
   };
 
 }

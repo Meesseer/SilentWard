@@ -4,6 +4,10 @@ import {
   Interactable,
 } from "../interaction/Interactable.js";
 
+import {
+  createWallMaterial,
+} from "./material.js";
+
 
 // ====================================
 // CORRIDOR EXPLORATION ROOMS
@@ -45,10 +49,7 @@ function createCorridorRoom(
   const roomCenterX = isLeft ? -5 : 5;
   const outerWallX = isLeft ? -8 : 8;
   const corridorWallX = isLeft ? -2 : 2;
-  const wallMaterial = new THREE.MeshStandardMaterial({
-    color: 0x383a3a,
-    roughness: 0.95,
-  });
+  const wallMaterial = createWallMaterial(ROOM_DEPTH, ROOM_HEIGHT);
   const floorMaterial = new THREE.MeshStandardMaterial({
     color: 0x262828,
     roughness: 1,

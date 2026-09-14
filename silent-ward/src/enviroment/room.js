@@ -5,7 +5,7 @@ import {
 } from "../config/gameConfig.js";
 
 import {
-  wallMaterial,
+  createWallMaterial,
   floorMaterial,
   darkMaterial,
   metalMaterial,
@@ -76,6 +76,31 @@ function createBox(
 }
 
 
+function createWallBox(
+  width,
+  height,
+  depth,
+  x,
+  y,
+  z
+) {
+
+  return createBox(
+    width,
+    height,
+    depth,
+    createWallMaterial(
+      Math.max(width, depth),
+      height
+    ),
+    x,
+    y,
+    z
+  );
+
+}
+
+
 // ====================================
 // CREATE ROOM
 // ====================================
@@ -139,11 +164,10 @@ export function createRoom(scene) {
 
 
   addCollider(
-    createBox(
+    createWallBox(
       sideWallWidth,
       ROOM_HEIGHT,
       0.2,
-      wallMaterial,
 
       -(
         DOOR_WIDTH / 2 +
@@ -162,11 +186,10 @@ export function createRoom(scene) {
   // ====================================
 
   addCollider(
-    createBox(
+    createWallBox(
       sideWallWidth,
       ROOM_HEIGHT,
       0.2,
-      wallMaterial,
 
       (
         DOOR_WIDTH / 2 +
@@ -194,11 +217,10 @@ export function createRoom(scene) {
   ) {
 
     addCollider(
-      createBox(
+      createWallBox(
         DOOR_WIDTH,
         wallAboveDoor,
         0.2,
-        wallMaterial,
 
         0,
 
@@ -217,11 +239,10 @@ export function createRoom(scene) {
   // ====================================
 
   addCollider(
-    createBox(
+    createWallBox(
       0.2,
       ROOM_HEIGHT,
       ROOM_DEPTH,
-      wallMaterial,
 
       -ROOM_WIDTH / 2,
 
@@ -237,11 +258,10 @@ export function createRoom(scene) {
   // ====================================
 
   addCollider(
-    createBox(
+    createWallBox(
       0.2,
       ROOM_HEIGHT,
       ROOM_DEPTH,
-      wallMaterial,
 
       ROOM_WIDTH / 2,
 
@@ -281,11 +301,10 @@ export function createRoom(scene) {
     ({ width, x }) => {
 
       addCollider(
-        createBox(
+        createWallBox(
           width,
           ROOM_HEIGHT,
           0.2,
-          wallMaterial,
           x,
           ROOM_HEIGHT / 2,
           FRONT_Z
@@ -299,11 +318,10 @@ export function createRoom(scene) {
     (x) => {
 
       addCollider(
-        createBox(
+        createWallBox(
           DOOR_WIDTH,
           ROOM_HEIGHT - DOOR_HEIGHT,
           0.2,
-          wallMaterial,
           x,
           DOOR_HEIGHT +
           (ROOM_HEIGHT - DOOR_HEIGHT) / 2,

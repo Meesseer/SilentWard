@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import {
     darkMaterial,
-    wallMaterial,
+    createWallMaterial,
     floorMaterial,
 } from "./material";
 
@@ -65,6 +65,31 @@ function createBox(
 
 
     return mesh;
+
+}
+
+
+function createWallBox(
+    width,
+    height,
+    depth,
+    x,
+    y,
+    z
+) {
+
+    return createBox(
+        width,
+        height,
+        depth,
+        createWallMaterial(
+            Math.max(width, depth),
+            height
+        ),
+        x,
+        y,
+        z
+    );
 
 }
 
@@ -196,11 +221,10 @@ export function createWardC(scene) {
 
 
     addCollider(
-        createBox(
+        createWallBox(
             sideWallWidth,
             ROOM_HEIGHT,
             0.2,
-            wallMaterial,
             -(
                 EXIT_WIDTH / 2 +
                 sideWallWidth / 2
@@ -212,11 +236,10 @@ export function createWardC(scene) {
 
 
     addCollider(
-        createBox(
+        createWallBox(
             sideWallWidth,
             ROOM_HEIGHT,
             0.2,
-            wallMaterial,
             EXIT_WIDTH / 2 +
             sideWallWidth / 2,
             ROOM_HEIGHT / 2,
@@ -235,11 +258,10 @@ export function createWardC(scene) {
     ) {
 
         addCollider(
-            createBox(
+            createWallBox(
                 EXIT_WIDTH,
                 wallAboveExit,
                 0.2,
-                wallMaterial,
                 0,
                 EXIT_HEIGHT +
                 wallAboveExit / 2,
@@ -255,11 +277,10 @@ export function createWardC(scene) {
     // ====================================
 
     addCollider(
-        createBox(
+        createWallBox(
             0.2,
             ROOM_HEIGHT,
             ROOM_DEPTH,
-            wallMaterial,
             -ROOM_WIDTH / 2,
             ROOM_HEIGHT / 2,
             ROOM_Z
@@ -272,11 +293,10 @@ export function createWardC(scene) {
     // ====================================
 
     addCollider(
-        createBox(
+        createWallBox(
             0.2,
             ROOM_HEIGHT,
             ROOM_DEPTH,
-            wallMaterial,
             ROOM_WIDTH / 2,
             ROOM_HEIGHT / 2,
             ROOM_Z

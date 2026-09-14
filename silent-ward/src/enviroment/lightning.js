@@ -89,4 +89,40 @@ export function updateLighting(
   lights.ceilingLight.intensity =
     lights.ceilingLight.userData.baseIntensity +
     flicker;
+
+  const corridorLights =
+    lights.corridorLights || [];
+
+  corridorLights.forEach(
+    ({ light, fixture }) => {
+
+      const phase =
+        light.userData.phase || 0;
+
+      const pulse =
+        Math.sin(elapsedTime * 26 + phase) *
+        Math.sin(elapsedTime * 4.7 + phase * 0.35);
+
+      let amount =
+        0.62 + pulse * 0.38;
+
+      if (Math.sin(elapsedTime * 1.6 + phase * 0.9) > 0.91) {
+        amount *= 0.06;
+      }
+
+      if (Math.sin(elapsedTime * 11.4 + phase * 2.1) > 0.97) {
+        amount *= 0.15;
+      }
+
+      light.intensity =
+        light.userData.baseIntensity *
+        Math.max(amount, 0.04);
+
+      if (fixture && fixture.material) {
+        fixture.material.emissiveIntensity =
+          Math.max(amount, 0.05);
+      }
+
+    }
+  );
 }

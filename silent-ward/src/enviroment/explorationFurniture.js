@@ -150,22 +150,27 @@ export async function createExplorationFurniture(scene) {
   const furniture = [
     // Spawn-room Examination Room
     { path: "/assets/models/furniture/hospital-bed.glb", x: -3, z: 9, height: 3, rotation: Math.PI },
+    { path: "/assets/models/furniture/medicalTable.glb", x: -4.4, z: 7.2, height: 1.05, rotation: Math.PI / 2 },
     { path: "/assets/models/furniture/oldWallClock.glb", x: -3, y: 2.5, z: 10.75, height: 0.85 },
 
     // Spawn-room Records Room
     { path: "/assets/models/furniture/filing_cabinets.glb", x: 3, z: 8.8, height: 2.1, rotation: Math.PI },
+    { path: "/assets/models/furniture/medicalTable.glb", x: 4.4, z: 7.2, height: 1.05, rotation: -Math.PI / 2 },
     { path: "/assets/models/furniture/oldWallClock.glb", x: 3, y: 2.5, z: 10.75, height: 0.85 },
 
     // Corridor Treatment Room
     { path: "/assets/models/furniture/hospital-bed.glb", x: -5.4, z: -17, height: 2.2, rotation: Math.PI / 2 },
+    { path: "/assets/models/furniture/medicalTable.glb", x: -6.9, z: -18.4, height: 1.05 },
     { path: "/assets/models/furniture/wheelChair.glb", x: -6.8, z: -16, height: 1.9 },
 
     // Corridor Supply Room
     { path: "/assets/models/furniture/wheelChair.glb", x: 5.5, z: -22, height: 2.1, rotation: -Math.PI / 2 },
+    { path: "/assets/models/furniture/medicalTable.glb", x: 6.9, z: -20.6, height: 1.05, rotation: Math.PI },
     { path: "/assets/models/furniture/oldWallClock.glb", x: 7.75, y: 2.2, z: -22, height: 0.8, rotation: Math.PI / 2 },
 
     // Corridor Observation Room
     { path: "/assets/models/furniture/hospital-bed.glb", x: -5.4, z: -27, height: 2.2, rotation: Math.PI / 2 },
+    { path: "/assets/models/furniture/medicalTable.glb", x: -6.9, z: -28.4, height: 1.05 },
     { path: "/assets/models/furniture/oldWallClock.glb", x: -7.75, y: 2.2, z: -27, height: 0.8, rotation: -Math.PI / 2 },
   ];
 

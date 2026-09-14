@@ -12,6 +12,22 @@ import {
   showMessage,
 } from "../ui/interactablePrompt.js";
 
+import { loadModel } from "../core/assetLoader.js";
+
+import {
+  prepareModel,
+  fitModelToSize,
+  hingeModelOnLeft,
+} from "../core/modelUtils.js";
+
+import {
+  createWallMaterial,
+} from "./material.js";
+
+import {
+  createFireExit,
+} from "./fireExit.js";
+
 
 // ====================================
 // OLD ROOM 417
@@ -50,7 +66,7 @@ function createBox(
 }
 
 
-export function createOldRoom417(
+export async function createOldRoom417(
   scene,
   interactionManager,
   story
@@ -58,10 +74,7 @@ export function createOldRoom417(
 
   const colliders = [];
   const wallMaterial =
-    new THREE.MeshStandardMaterial({
-      color: 0x4a4540,
-      roughness: 0.95,
-    });
+    createWallMaterial(ROOM_DEPTH, ROOM_HEIGHT);
   const floorMaterial =
     new THREE.MeshStandardMaterial({
       color: 0x282726,
@@ -147,7 +160,42 @@ export function createOldRoom417(
 
   addCollider(createBox(0.2, ROOM_HEIGHT, ROOM_DEPTH, wallMaterial, -2, 2, ROOM_CENTER_Z));
   addCollider(createBox(0.2, ROOM_HEIGHT, ROOM_DEPTH, wallMaterial, 2, 2, ROOM_CENTER_Z));
-  addCollider(createBox(ROOM_WIDTH, ROOM_HEIGHT, 0.2, wallMaterial, 0, 2, backZ));
+
+  addCollider(
+    createBox(
+      sideWidth,
+      ROOM_HEIGHT,
+      0.2,
+      wallMaterial,
+      -(DOOR_WIDTH / 2 + sideWidth / 2),
+      ROOM_HEIGHT / 2,
+      backZ
+    )
+  );
+
+  addCollider(
+    createBox(
+      sideWidth,
+      ROOM_HEIGHT,
+      0.2,
+      wallMaterial,
+      DOOR_WIDTH / 2 + sideWidth / 2,
+      ROOM_HEIGHT / 2,
+      backZ
+    )
+  );
+
+  addCollider(
+    createBox(
+      DOOR_WIDTH,
+      ROOM_HEIGHT - DOOR_HEIGHT,
+      0.2,
+      wallMaterial,
+      0,
+      DOOR_HEIGHT + (ROOM_HEIGHT - DOOR_HEIGHT) / 2,
+      backZ
+    )
+  );
 
   // ------------------------------------
   // HINGED ROOM DOOR
@@ -157,19 +205,55 @@ export function createOldRoom417(
   door.name = "room-417-door";
   door.position.set(-1, 0, frontZ - 0.15);
 
-  const doorMesh = createBox(
+  const doorCollider = createBox(
     DOOR_WIDTH,
     DOOR_HEIGHT,
     0.22,
-    doorMaterial,
+    new THREE.MeshBasicMaterial({
+      visible: false,
+    }),
     DOOR_WIDTH / 2,
     DOOR_HEIGHT / 2,
     0
   );
 
-  door.add(doorMesh);
+  doorCollider.userData.isDoor = true;
+  door.add(doorCollider);
+
+  try {
+    const doorModel = await loadModel(
+      "/assets/models/furniture/doorWooden.glb"
+    );
+
+    prepareModel(doorModel);
+
+    const fittedBounds = fitModelToSize(
+      doorModel,
+      DOOR_WIDTH,
+      DOOR_HEIGHT
+    );
+
+    hingeModelOnLeft(doorModel, fittedBounds);
+    door.add(doorModel);
+  }
+  catch (error) {
+    console.error("Failed to load Room 417 door:", error);
+
+    door.add(
+      createBox(
+        DOOR_WIDTH,
+        DOOR_HEIGHT,
+        0.22,
+        doorMaterial,
+        DOOR_WIDTH / 2,
+        DOOR_HEIGHT / 2,
+        0
+      )
+    );
+  }
+
   scene.add(door);
-  colliders.push(doorMesh);
+  colliders.push(doorCollider);
 
   let isOpen = false;
   let isOpening = false;
@@ -202,7 +286,7 @@ export function createOldRoom417(
           return;
         }
 
-        doorMesh.userData.isOpen = true;
+        doorCollider.userData.isOpen = true;
         isOpen = true;
         isOpening = false;
         interactionManager.removeInteractable(doorInteraction);
@@ -247,40 +331,19 @@ export function createOldRoom417(
 
   interactionManager.addInteractable(recordInteraction);
 
-  // ------------------------------------
-  // FINAL EXIT
-  // ------------------------------------
-
-  const exitPanel = createBox(
-    1.1,
-    0.45,
-    0.08,
-    new THREE.MeshStandardMaterial({ color: 0x6f1b1b, emissive: 0x260606 }),
-    0,
-    1.8,
-    backZ + 0.12
+  const fireExit = createFireExit(
+    scene,
+    interactionManager,
+    story,
+    backZ
   );
 
-  scene.add(exitPanel);
-
-  const exitInteraction = new Interactable({
-    object: exitPanel,
-    name: "Emergency Exit",
-    interactionText: "Press E to leave the ward",
-    onInteract: () => {
-      if (!story.has(STORY_EVENTS.PATIENT_TRUTH_FOUND)) {
-        showMessage("Something in this room is still unresolved.");
-        return;
-      }
-
-      story.trigger(STORY_EVENTS.ENDING);
-    },
-  });
-
-  interactionManager.addInteractable(exitInteraction);
-
   return {
-    colliders,
+    colliders: [
+      ...colliders,
+      ...fireExit.colliders,
+    ],
+    getGroundY: fireExit.getGroundY,
   };
 
 }

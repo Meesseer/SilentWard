@@ -139,6 +139,11 @@ import {
   createEndingUI,
 } from "./story/EndingUI.js";
 
+import {
+  createHealthUI,
+  createDeathUI,
+} from "./ui/playerStatus.js";
+
 
 
 // ------------------------------------
@@ -217,6 +222,9 @@ async function init() {
       wardCExitZ -
       corridorLength / 2
     );
+
+  lights.corridorLights =
+    corridor.lights;
 
   const wardCFurnitureColliders =
     await createWardCFurniture(scene);
@@ -324,6 +332,9 @@ async function init() {
     story
   );
 
+  createHealthUI(player);
+  createDeathUI(player, interactionManager);
+
 
   // ------------------------------------
   // EXPLORATION ROOMS
@@ -351,14 +362,15 @@ async function init() {
   // CORRIDOR STORY OBJECTS
   // ------------------------------------
 
-  createFloorPlan(
-    scene,
-    interactionManager,
-    story
-  );
+  const floorPlan =
+    await createFloorPlan(
+      scene,
+      interactionManager,
+      story
+    );
 
   const room417 =
-    createOldRoom417(
+    await createOldRoom417(
       scene,
       interactionManager,
       story
@@ -476,6 +488,7 @@ async function init() {
     ...explorationRoomColliders,
     ...corridorRoomColliders,
     ...explorationFurnitureColliders,
+    floorPlan.tableCollider,
     hospitalBed.collider,
     wardCDoor.collider,
   ];
@@ -489,7 +502,8 @@ async function init() {
     new PlayerController(
       camera,
       player,
-      colliders
+      colliders,
+      room417.getGroundY
     );
 
 

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import {
-  wallMaterial,
+  createWallMaterial,
   floorMaterial,
   darkMaterial,
   metalMaterial,
@@ -75,6 +75,31 @@ function createBox(
 
 
   return mesh;
+
+}
+
+
+function createWallBox(
+  width,
+  height,
+  depth,
+  x,
+  y,
+  z
+) {
+
+  return createBox(
+    width,
+    height,
+    depth,
+    createWallMaterial(
+      Math.max(width, depth),
+      height
+    ),
+    x,
+    y,
+    z
+  );
 
 }
 
@@ -177,11 +202,10 @@ export function createCorridor(
           endZ - startZ;
 
         addCollider(
-          createBox(
+          createWallBox(
             0.2,
             CORRIDOR_HEIGHT,
             depth,
-            wallMaterial,
             x,
             originY + CORRIDOR_HEIGHT / 2,
             startZ + depth / 2
@@ -353,17 +377,27 @@ export function createCorridor(
     6,
   ];
 
+  const lights = [];
+
 
   lightPositions.forEach(
-    (zOffset) => {
+    (zOffset, index) => {
 
-      const light =
+      const fixtureMaterial =
+        new THREE.MeshStandardMaterial({
+          color: 0xf0e6c8,
+          emissive: 0xd8c48a,
+          emissiveIntensity: 0.85,
+          roughness: 0.4,
+        });
+
+      const fixture =
         createBox(
           1.2,
           0.05,
           0.35,
 
-          metalMaterial,
+          fixtureMaterial,
 
           originX,
 
@@ -377,8 +411,32 @@ export function createCorridor(
 
 
       scene.add(
-        light
+        fixture
       );
+
+
+      const light =
+        new THREE.PointLight(
+          0xf2e4b8,
+          4.8,
+          10
+        );
+
+      light.position.set(
+        originX,
+        originY + CORRIDOR_HEIGHT - 0.55,
+        originZ + zOffset
+      );
+
+      light.userData.baseIntensity = 4.8;
+      light.userData.phase = index * 1.83;
+
+      scene.add(light);
+
+      lights.push({
+        light,
+        fixture,
+      });
 
     }
   );
@@ -406,6 +464,8 @@ export function createCorridor(
 
     doorCollider:
       doorMesh,
+
+    lights,
 
   };
 

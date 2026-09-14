@@ -4,10 +4,11 @@ import { PLAYER_CONFIG } from "../config/gameConfig.js";
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
 
 export class PlayerController {
-  constructor(camera, player, colliders = []) {
+  constructor(camera, player, colliders = [], getGroundY = () => 0) {
     this.camera = camera;
     this.player = player;
     this.colliders = colliders;
+    this.getGroundY = getGroundY;
 
     this.controls =
       new PointerLockControls(
@@ -100,6 +101,10 @@ export class PlayerController {
   update(deltaTime) {
 
     if (this.isUIBlocked) {
+      return;
+    }
+
+    if (this.player.isDead) {
       return;
     }
 
@@ -238,6 +243,9 @@ export class PlayerController {
 
     newPosition.x += movement.x;
     newPosition.z += movement.z;
+    newPosition.y =
+      this.getGroundY(newPosition.x, newPosition.z) +
+      this.player.height;
 
 
     if (
@@ -256,16 +264,19 @@ export class PlayerController {
 
   checkCollision(position) {
 
+    const groundY =
+      this.getGroundY(position.x, position.z);
+
     const playerBox =
       new THREE.Box3(
         new THREE.Vector3(
           position.x - this.player.radius,
-          0,
+          groundY,
           position.z - this.player.radius
         ),
         new THREE.Vector3(
           position.x + this.player.radius,
-          this.player.height,
+          groundY + this.player.height,
           position.z + this.player.radius
         )
       );

@@ -8,6 +8,10 @@ import {
   STORY_EVENTS,
 } from "../story/StoryManager.js";
 
+import {
+  PLAYER_CONFIG,
+} from "../config/gameConfig.js";
+
 
 // ====================================
 // GHOST SYSTEM
@@ -27,6 +31,7 @@ export class GhostSystem {
     this.manifestTime = 0;
     this.isModelReady = false;
     this.ghostMaterials = [];
+    this.nextTouchTime = 0;
 
     this.entity =
       new THREE.Group();
@@ -214,6 +219,7 @@ export class GhostSystem {
         Math.sin(performance.now() * 0.006) * 0.05;
 
       this.facePlayer();
+      this.applyTouchDamage();
 
       return;
     }
@@ -251,11 +257,54 @@ export class GhostSystem {
       Math.sin(elapsed * 0.002) * 0.04;
 
     this.facePlayer();
+    this.applyTouchDamage();
 
     if (shouldDisappear && opacity <= 0) {
       this.entity.visible = false;
       this.state = "HIDDEN";
     }
+
+  }
+
+
+  applyTouchDamage() {
+
+    if (
+      this.state === "HIDDEN" ||
+      !this.entity.visible ||
+      this.player.isDead
+    ) {
+      return;
+    }
+
+    const dx =
+      this.player.position.x -
+      this.entity.position.x;
+
+    const dz =
+      this.player.position.z -
+      this.entity.position.z;
+
+    const distance =
+      Math.hypot(dx, dz);
+
+    if (distance > PLAYER_CONFIG.ghostTouchRange) {
+      return;
+    }
+
+    const now =
+      performance.now();
+
+    if (now < this.nextTouchTime) {
+      return;
+    }
+
+    this.nextTouchTime =
+      now + PLAYER_CONFIG.ghostTouchCooldown * 1000;
+
+    this.player.takeDamage(
+      PLAYER_CONFIG.ghostTouchDamage
+    );
 
   }
 

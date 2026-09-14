@@ -873,3 +873,66 @@ canvas {
   font-size: 28px;
   cursor: pointer;
 }
+
+#death-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(18, 0, 0, 0.92);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease;
+  z-index: 10002;
+}
+
+#death-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+#player-health {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  width: 220px;
+  z-index: 900;
+  pointer-events: none;
+  font-family: Arial, sans-serif;
+  color: #d7d2c6;
+  letter-spacing: 2px;
+  font-size: 11px;
+}
+
+#player-health .health-bar {
+  margin-top: 8px;
+  height: 10px;
+  border: 1px solid #6a6256;
+  background: rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+}
+
+#player-health .health-fill {
+  width: 100%;
+  height: 100%;
+  background: #8f2a2a;
+  transition: width 0.2s ease;
+}
+
+#player-health.hurt .health-fill {
+  background: #b44a1f;
+}
+
+#player-health.critical .health-fill {
+  background: #d31212;
+}
+
+#player-health.hit {
+  animation: health-hit 0.28s ease;
+}
+
+@keyframes health-hit {
+  0% { filter: brightness(2); }
+  100% { filter: brightness(1); }
+}
